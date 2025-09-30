@@ -1,0 +1,58 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // (Neon 붙인 후 쓰면 좋아요)
+  // directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Student {
+  id        String          @id @default(cuid())
+  name      String
+  grade     Int?
+  className String?
+  guardians Guardian[]      @relation("StudentGuardians")
+  sessions  AttendSession[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model Guardian {
+  id         String    @id @default(cuid())
+  name       String
+  phoneFull  String
+  phoneLast4 String
+  students   Student[] @relation("StudentGuardians")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([phoneLast4])
+}
+
+model AttendSession {
+  id         String    @id @default(cuid())
+  studentId  String
+  student    Student   @relation(fields: [studentId], references: [id])
+  checkInAt  DateTime
+  checkOutAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([studentId, checkInAt])
+}
+
+model NotifyLog {
+  id         String   @id @default(cuid())
+  studentId  String?
+  type       String // "IN" | "OUT"
+  channel    String // "kakao" | "sms" | "mock"
+  toPhone    String
+  message    String
+  sentAt     DateTime @default(now())
+  success    Boolean
+  providerId String?
+  error      String?
+}
