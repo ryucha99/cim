@@ -3,6 +3,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --btn-bg-from: #f9fafb;      /* 버튼 그라데이션 시작 */
+  --btn-bg-to:   #e5e7eb;      /* 버튼 그라데이션 끝 */
+  --btn-border:  rgba(0,0,0,.08);
+  --btn-text:    #111827;
+  --btn-shadow:  0 10px 20px rgba(0,0,0,.10);
+  --btn-gloss:   rgba(255,255,255,.6);
 }
 
 @theme inline {
@@ -23,4 +29,43 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 스킨: 글래스 */
+[data-skin="glass"] {
+  --btn-bg-from: rgba(255,255,255,.55);
+  --btn-bg-to:   rgba(255,255,255,.25);
+  --btn-border:  rgba(255,255,255,.35);
+  --btn-text:    #0f172a;
+  --btn-shadow:  0 8px 24px rgba(15,23,42,.18);
+  --btn-gloss:   rgba(255,255,255,.8);
+  backdrop-filter: blur(8px);
+}
+
+/* 스킨: 네온 */
+[data-skin="neon"] {
+  --btn-bg-from: #0ea5e9;
+  --btn-bg-to:   #2563eb;
+  --btn-border:  rgba(0,0,0,.2);
+  --btn-text:    #ffffff;
+  --btn-shadow:  0 0 24px rgba(34,197,94,.35);
+  --btn-gloss:   rgba(255,255,255,.2);
+}
+
+/* 스킨: 키즈(파스텔) */
+[data-skin="kids"] {
+  --btn-bg-from: #fde68a;
+  --btn-bg-to:   #fca5a5;
+  --btn-border:  rgba(0,0,0,.08);
+  --btn-text:    #1f2937;
+  --btn-shadow:  0 10px 20px rgba(251, 146, 60, .25);
+  --btn-gloss:   rgba(255,255,255,.4);
+}
+
+/* 버튼 공통 유틸 (스킨 변수 사용) */
+.btn-skin {
+  background-image: linear-gradient(to bottom, var(--btn-bg-from), var(--btn-bg-to));
+  color: var(--btn-text);
+  border: 1px solid var(--btn-border);
+  box-shadow: var(--btn-shadow);
 }
