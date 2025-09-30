@@ -1,37 +1,54 @@
+// lib/notify.ts
 import { prisma } from './prisma';
 
-export async function sendNotify(opts: {
+type NotifyArgs = {
   studentId?: string;
   studentName: string;
   toPhone: string;
-  type: 'IN'|'OUT';
+  type: 'IN' | 'OUT';
   whenText: string;
-}) {
+};
+
+export async function sendNotify(args: NotifyArgs) {
   const academy = process.env.ACADEMY_NAME || 'OOO 학원';
   const channel = process.env.NOTIFY_PROVIDER || 'mock';
-  const message = opts.type === 'IN'
-    ? `${opts.studentName}학생, (${opts.whenText})에 ${academy}에 출석하였습니다.`
-    : `${opts.studentName}학생, (${opts.whenText})에 ${academy}에 하원하였습니다.`;
 
-  let ok = true, providerId: string|undefined, error: string|undefined;
+  const message =
+    args.type === 'IN'
+      ? `${args.studentName}학생, (${args.whenText})에 ${academy}에 출석하였습니다.`
+      : `${args.studentName}학생, (${args.whenText})에 ${academy}에 하원하였습니다.`;
+
+  let success: boolean;
+  let providerId: string | undefined;
+  let error: string | undefined;
+
   if (channel === 'mock') {
-    console.log('[MOCK NOTIFY]', { to: opts.toPhone, message });
+    console.log('[MOCK NOTIFY]', { to: args.toPhone, message });
+    success = true;
   } else {
-    // TODO: 알림톡/SMS 실제 연동
+    try {
+      // TODO: 실제 알림톡/SMS 연동 호출
+      // const res = await fetch(...);
+      // success = res.ok; providerId = ...
+      success = true;
+    } catch (e) {
+      success = false;
+      error = String(e);
+    }
   }
 
   await prisma.notifyLog.create({
     data: {
-      studentId: opts.studentId,
-      type: opts.type,
+      studentId: args.studentId ?? undefined,
+      type: args.type,
       channel,
-      toPhone: opts.toPhone,
+      toPhone: args.toPhone,
       message,
-      success: ok,
+      success,
       providerId,
-      error
-    }
+      error,
+    },
   });
 
-  return { ok, message };
+  return { ok: success, message };
 }

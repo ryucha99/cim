@@ -1,4 +1,17 @@
+// lib/prisma.ts
 import { PrismaClient } from '@prisma/client';
-const g = global as any;
-export const prisma: PrismaClient = g.prisma || new PrismaClient({ log: ['warn','error'] });
-if (process.env.NODE_ENV !== 'production') g.prisma = prisma;
+
+const prismaClientSingleton = () =>
+  new PrismaClient({ log: ['warn', 'error'] });
+
+declare global {
+  // eslint-disable-next-line no-var
+  var prismaGlobal: ReturnType<typeof prismaClientSingleton> | undefined;
+}
+
+export const prisma =
+  globalThis.prismaGlobal ?? prismaClientSingleton();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.prismaGlobal = prisma;
+}
