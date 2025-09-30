@@ -23,7 +23,7 @@ model Student {
 model Guardian {
   id         String    @id @default(cuid())
   name       String
-  phoneFull  String
+  phoneFull  String   @unique   // ⬅️ 추가
   phoneLast4 String
   students   Student[] @relation("StudentGuardians")
   createdAt  DateTime  @default(now())
