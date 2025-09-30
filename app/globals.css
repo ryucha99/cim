@@ -69,3 +69,13 @@ body {
   border: 1px solid var(--btn-border);
   box-shadow: var(--btn-shadow);
 }
+
+:root{
+  --readin-navy:#0b1b3b;   /* 로고 남색 톤 */
+  --readin-gray:#f2f3f5;   /* 키패드 영역 배경 */
+  --box-border:#1f3553;    /* 입력 네모 테두리 */
+}
+.text-readin { color: var(--readin-navy); }
+.border-readin { border-color: var(--box-border); }
+.bg-keypad { background: var(--readin-gray); }
+
