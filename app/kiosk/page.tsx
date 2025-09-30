@@ -44,9 +44,21 @@ export default function Page() {
     <div className="min-h-dvh bg-white text-readin">
       <div className="w-full max-w-[920px] mx-auto px-6 py-5">
         {/* 헤더: 로고 + 지점명 */}
-        <header className="flex items-center gap-3 mb-4">
-          <Image src="/readin-logo.jpg" alt="READIN" width={112} height={32} className="h-8 w-auto" priority/>
-          <span className="text-xl sm:text-2xl font-extrabold tracking-tight">{BRANCH}</span>
+        <header className="flex flex-col items-center justify-center mb-6">
+            {/* 로고 2배 확대 & 중앙 정렬 */}
+            <Image
+                src="/readin-logo.jpg"
+                alt="READIN"
+                width={224}        // 기존 112 → 2배
+                height={64}        // 기존 32  → 2배
+                className="w-auto h-16"
+                priority
+            />
+            
+            {/* 지점명: 아래 줄, 1.5배 크기, 중앙 정렬 */}
+            <span className="mt-2 text-2xl sm:text-3xl font-extrabold text-center">
+                {BRANCH}
+            </span>
         </header>
 
         {/* 본문 */}
