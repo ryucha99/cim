@@ -53,20 +53,21 @@ export default function Page() {
         <div className="flex flex-col items-center">
           <div className="text-xl sm:text-2xl font-bold">{clock}</div>
 
-          {/* 라벨 삭제 → 바로 입력칸 */}
+          {/* 입력칸 (1.5배) */}
           <CodeBoxes digits={digits} />
 
-          {/* 축소된 키패드 */}
+          {/* 키패드 (20% 업) */}
           <KioskKeypad onKey={onKey} />
 
-          {/* 키패드 아래 일러스트 (침범 방지, 반응형 크기) */}
-          <div className="mt-6 flex justify-end w-full">
+          {/* 그림: 중앙 정렬, 반응형 크기 */}
+          <div className="mt-6 w-full flex justify-center">
             <Image
-              src="/readin-hero.jpg"
+              src="/readin-hero.jpg"   // public/readin-hero.jpg
               alt="READIN"
-              width={360}
-              height={360}
-              className="w-40 sm:w-48 md:w-56 lg:w-64 h-auto"
+              width={380}
+              height={380}
+              className="w-48 sm:w-56 md:w-64 lg:w-72 h-auto"
+              priority
             />
           </div>
         </div>
