@@ -72,7 +72,7 @@ export async function PATCH(req: NextRequest, { params }: ParamCtx) {
               ...(body.phoneFull !== undefined ? { phoneFull: normalizedFull, phoneLast4: last4 } : {}),
             },
           });
-        } catch (e: any) {
+        } catch (e: unknown) {
           // 고유키 충돌(P2002) → 이미 그 번호의 보호자가 존재하면 그 보호자로 연결
           const exist = await prisma.guardian.findFirst({ where: { phoneFull: normalizedFull } });
           if (exist) {
