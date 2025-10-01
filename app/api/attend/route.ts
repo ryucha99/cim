@@ -18,7 +18,10 @@ export async function POST(req: Request) {
 
     // 보호자 → 학생 매칭 (1차: 첫 학생 사용)
     const guardian = await prisma.guardian.findFirst({
-      where: { phoneLast4: last4 },
+      where: {
+        phoneLast4: last4,
+        students: { some: {} },      // ✅ 최소 1명 연결된 가디언만
+      },
       include: { students: true },
     });
     if (!guardian || guardian.students.length === 0) {

@@ -11,6 +11,8 @@ type StudentPatchBody = {
   name?: string;
   grade?: number | string | null;
   className?: string | null;
+  guardianName?: string;
+  phoneFull?: string;
 };
 
 function errorJson(status: number, err: unknown) {
@@ -34,7 +36,9 @@ export async function PATCH(req: NextRequest, { params }: ParamCtx) {
   try {
     const { id } = await params;
     const body = (await req.json()) as Partial<StudentPatchBody>;
-    const updated = await prisma.student.update({
+
+    // 1) 학생 기본 정보 수정
+    await prisma.student.update({
       where: { id },
       data: {
         ...(body.name !== undefined ? { name: body.name } : {}),
@@ -44,9 +48,65 @@ export async function PATCH(req: NextRequest, { params }: ParamCtx) {
         ...(body.className !== undefined ? { className: body.className } : {}),
       },
     });
-    return NextResponse.json({ ok: true, student: { id: updated.id } });
+
+    // 2) 보호자 정보 수정 (옵션)
+    if (body.guardianName !== undefined || body.phoneFull !== undefined) {
+      const stu = await prisma.student.findUnique({
+        where: { id },
+        include: { guardians: true },
+      });
+
+      const targetGuardian = stu?.guardians?.[0]; // 1차 버전: 첫 보호자만 관리
+      const raw = String(body.phoneFull ?? (targetGuardian?.phoneFull ?? ''));
+      const digitsOnly = raw.replace(/\D/g, '');
+      const normalizedFull = digitsOnly;
+      const last4 = normalizedFull ? normalizedFull.slice(-4) : targetGuardian?.phoneLast4 ?? '';
+
+      if (targetGuardian) {
+        // 직접 업데이트 (전화번호 유니크 충돌 시, 해당 번호의 guardian으로 재연결)
+        try {
+          await prisma.guardian.update({
+            where: { id: targetGuardian.id },
+            data: {
+              ...(body.guardianName !== undefined ? { name: body.guardianName } : {}),
+              ...(body.phoneFull !== undefined ? { phoneFull: normalizedFull, phoneLast4: last4 } : {}),
+            },
+          });
+        } catch (e: any) {
+          // 고유키 충돌(P2002) → 이미 그 번호의 보호자가 존재하면 그 보호자로 연결
+          const exist = await prisma.guardian.findFirst({ where: { phoneFull: normalizedFull } });
+          if (exist) {
+            await prisma.student.update({
+              where: { id },
+              data: {
+                guardians: {
+                  disconnect: { id: targetGuardian.id },
+                  connect: { id: exist.id },
+                },
+              },
+            });
+            // (선택) 기존 guardian이 더 이상 참조되지 않으면 삭제할 수도 있음
+          } else {
+            throw e;
+          }
+        }
+      } else {
+        // 보호자가 없었으면 새로 만들고 연결
+        const g = await prisma.guardian.upsert({
+          where: { phoneFull: normalizedFull },
+          update: { name: body.guardianName ?? '' , phoneLast4: last4 },
+          create: { name: body.guardianName ?? '', phoneFull: normalizedFull, phoneLast4: last4 },
+        });
+        await prisma.student.update({
+          where: { id },
+          data: { guardians: { connect: { id: g.id } } },
+        });
+      }
+    }
+
+    return NextResponse.json({ ok: true });
   } catch (e: unknown) {
-    console.error('[PATCH /api/admin/students/:id]', e);
+    console.error('[PATCH /students/:id]', e);
     return errorJson(500, e);
   }
 }

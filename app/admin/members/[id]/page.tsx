@@ -44,6 +44,11 @@ export default async function MemberDetail({ params, searchParams }:{
 
   return (
     <div className="max-w-3xl mx-auto p-6">
+      <div className="mb-4">
+        <Link href="/admin" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border hover:bg-slate-50">
+        ⬅︎ 홈
+        </Link>
+      </div>
       <div className="flex items-end justify-between mb-4">
         <h1 className="text-xl font-bold">{s.name}</h1>
         <div className="flex items-center gap-2">
