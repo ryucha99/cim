@@ -1,10 +1,9 @@
 'use client';
 
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-// (선택) 프리렌더 이슈 피하려면 주석 해제
-// export const dynamic = 'force-dynamic';
+// export const dynamic = 'force-dynamic'; // 필요시 사용
 
 function LoginInner() {
   const [pin, setPin] = useState('');
@@ -12,6 +11,22 @@ function LoginInner() {
   const router = useRouter();
   const sp = useSearchParams();
   const next = sp.get('next') ?? '/admin';
+
+  // ✅ ✅ ✅ 여기 추가!!!
+  useEffect(() => {
+    if (pin.length === 4) {
+      (async () => {
+        if (pin === '1717') {
+          await fetch('/api/admin/login', { method: 'POST' });
+          router.push(next);
+        } else {
+          setErr('비밀번호가 올바르지 않습니다.');
+          setPin('');
+        }
+      })();
+    }
+  }, [pin, next, router]);
+  // ✅ ✅ ✅ 여기까지 추가
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,7 +62,6 @@ function LoginInner() {
 }
 
 export default function AdminLogin() {
-  // ✅ useSearchParams()를 쓰는 컴포넌트를 Suspense로 감싼다
   return (
     <Suspense fallback={<div className="min-h-dvh flex items-center justify-center">로딩…</div>}>
       <LoginInner />

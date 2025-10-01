@@ -29,9 +29,11 @@ export default function Page() {
         body: JSON.stringify({ last4: digits })
       });
       if (!res.ok) {
-        setOverlay({ name:'미등록 번호', type:'ERR' });
-        setTimeout(()=>{ setOverlay(null); setDigits(''); },2000);
-        return;
+          let msg = '미등록 번호';
+          try { const j = await res.json(); if (j?.message) msg = j.message; } catch {}
+          setOverlay({ name: msg, type: 'ERR' });
+          setTimeout(()=>{ setOverlay(null); setDigits(''); },2000);
+          return;
       }
       const data = await res.json();
       setOverlay({ name: `${data.student.name} 학생, 반가워요!!!`, type: data.type });

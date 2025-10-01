@@ -14,10 +14,15 @@ export async function POST(req: Request) {
     }
 
     // 1) 보호자 → 학생 매칭 (1차 버전: 첫 학생 고정)
+    // 변동 포인트만 요약
+    const { last4 } = await req.json() as { last4?: string };
+    if (!last4 || !/^\d{4}$/.test(last4)) return 400;
+
     const guardian = await prisma.guardian.findFirst({
       where: { phoneLast4: last4 },
       include: { students: true },
     });
+
     if (!guardian || guardian.students.length === 0) {
       return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
     }

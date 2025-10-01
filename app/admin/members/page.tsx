@@ -16,7 +16,7 @@ export default async function MembersPage() {
           {rows.map(s=>(
             <tr key={s.id} className="border-t">
               <td className="p-2">
-                <Link className="underline text-slate-700" href={`/admin/member/${s.id}`}>
+                <Link className="underline text-slate-700" href={`/admin/members/${s.id}`}>
                   {s.name}
                 </Link>
               </td>

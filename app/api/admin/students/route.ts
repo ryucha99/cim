@@ -39,24 +39,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'INVALID_INPUT', message: '필수값 누락' }, { status: 400 });
     }
 
-    const digits = String(phoneFull).replace(/\D/g, '');
-    if (digits.length < 4) {
-      return NextResponse.json(
-        { error: 'INVALID_PHONE', message: '전화번호는 숫자 4자리 이상이어야 합니다.' },
-        { status: 400 },
-      );
+    // POST 내부
+    const raw = String(phoneFull);
+    const digitsOnly = raw.replace(/\D/g, '');     // 숫자만
+    if (digitsOnly.length < 10) {
+      return NextResponse.json({ error:'INVALID_PHONE', message:'휴대폰 번호를 정확히 입력해주세요.' }, { status:400 });
     }
-    const last4 = digits.slice(-4);
+    const normalizedFull = digitsOnly;             // 저장은 숫자만
+    const last4 = normalizedFull.slice(-4);
 
-    // guardian upsert (find→update/create 분기)
-    const existing = await prisma.guardian.findFirst({ where: { phoneFull } });
+    // guardian 고유키는 phoneFull(숫자만)로 통일
+    const existing = await prisma.guardian.findFirst({ where: { phoneFull: normalizedFull } });
     const guardian = existing
       ? await prisma.guardian.update({
           where: { id: existing.id },
           data: { name: guardianName, phoneLast4: last4 },
         })
       : await prisma.guardian.create({
-          data: { name: guardianName, phoneFull, phoneLast4: last4 },
+          data: { name: guardianName, phoneFull: normalizedFull, phoneLast4: last4 },
         });
 
     const student = await prisma.student.create({
@@ -64,9 +64,10 @@ export async function POST(req: Request) {
         name,
         grade: grade == null || grade === '' ? null : Number(grade),
         className: className ?? null,
-        guardians: { connect: { id: guardian.id } },
-      },
+        guardians: { connect: { id: guardian.id } }
+      }
     });
+
 
     return NextResponse.json({ ok: true, studentId: student.id });
   } catch (e: unknown) {
