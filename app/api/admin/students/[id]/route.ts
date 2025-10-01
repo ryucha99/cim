@@ -20,19 +20,19 @@ function errorJson(status: number, err: unknown) {
 
 export async function GET(_req: NextRequest, { params }: ParamCtx) {
   try {
-    const { id } = await params; // ← 여기!
+    const { id } = await params;
     const s = await prisma.student.findUnique({ where: { id } });
     if (!s) return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
     return NextResponse.json(s);
   } catch (e: unknown) {
-    console.error('[GET /students/:id]', e);
+    console.error('[GET /api/admin/students/:id]', e);
     return errorJson(500, e);
   }
 }
 
 export async function PATCH(req: NextRequest, { params }: ParamCtx) {
   try {
-    const { id } = await params; // ← 여기!
+    const { id } = await params;
     const body = (await req.json()) as Partial<StudentPatchBody>;
     const updated = await prisma.student.update({
       where: { id },
@@ -46,13 +46,23 @@ export async function PATCH(req: NextRequest, { params }: ParamCtx) {
     });
     return NextResponse.json({ ok: true, student: { id: updated.id } });
   } catch (e: unknown) {
-    console.error('[PATCH /students/:id]', e);
+    console.error('[PATCH /api/admin/students/:id]', e);
     return errorJson(500, e);
   }
 }
 
 export async function DELETE(_req: NextRequest, { params }: ParamCtx) {
   try {
-    const { id } = await params; // ← 여기!
+    const { id } = await params;
+
+    // 학생 관련 레코드 정리 후 학생 삭제
     await prisma.attendSession.deleteMany({ where: { studentId: id } });
-    await prisma.notifyLog.deleteMany({ where: { s
+    await prisma.notifyLog.deleteMany({ where: { studentId: id } });
+    await prisma.student.delete({ where: { id } });
+
+    return NextResponse.json({ ok: true });
+  } catch (e: unknown) {
+    console.error('[DELETE /api/admin/students/:id]', e);
+    return errorJson(500, e);
+  }
+}
