@@ -17,8 +17,15 @@ export default function NewMemberPage() {
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify(form)
     });
-    if (res.ok) { setMsg('등록 완료'); setTimeout(()=>r.push('/admin'), 800); }
-    else { const t = await res.text(); setMsg('실패: '+t); }
+    if (res.ok) {
+      setMsg('등록 완료');
+      setTimeout(()=>r.push('/admin'), 800);
+    } else {
+      let t = '';
+      try { const j = await res.json(); t = j?.message || j?.error || ''; } catch {}
+      setMsg('실패: ' + (t || '알 수 없는 오류'));
+}
+
   }
 
   return (
