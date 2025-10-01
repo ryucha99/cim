@@ -38,9 +38,9 @@ export default function Page() {
       const data = await res.json();
       let msg = '';
       if (data.type === 'IN') {
-        msg = `${data.student.name} 학생, 반가워요!!! 오늘도 즐겁게 시작하자~`;
+        msg = `${data.student.name} 학생, 반가워요!!!\n오늘도 즐겁게 시작하자~`;
       } else if (data.type === 'OUT') {
-        msg = `${data.student.name} 학생, 오늘도 수고했어!!! 다음에 또 보자~`;
+        msg = `${data.student.name} 학생, 오늘도 수고했어!!!\n다음에 또 보자~`;
       } else if (data?.message) {
         // 서버가 OK로 주면서 안내문을 실어줄 수도 있을 때 대비
         msg = data.message;
@@ -102,7 +102,7 @@ export default function Page() {
       {overlay && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center">
           <div className="bg-white rounded-3xl px-8 py-6 text-center shadow-xl">
-            <div className="text-2xl font-extrabold text-readin">{overlay.name}</div>
+            <div className="text-2xl font-extrabold text-readin whitespace-pre-line">{overlay.name}</div>
           </div>
         </div>
       )}
