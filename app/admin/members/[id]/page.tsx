@@ -50,7 +50,7 @@ export default async function MemberDetail({ params, searchParams }:{
   const s = await prisma.student.findUnique({ where:{ id: params.id } });
   if (!s) return notFound();
 
-  const { base, y, m, first, lastDate, padStart } = getMonthRange(searchParams.m);
+  const { base, y, m, lastDate, padStart } = getMonthRange(searchParams.m);
 
   // 해당 월 KST 범위 계산 (포함/제외 경계는 서버타임과 무관하게 KST 날짜 텍스트 비교로 필터링)
   // 먼저 해당 월 전체 레코드를 대~충 가져오고, 아래에서 KST yyyy-mm-dd로 다시 걸러도 됨.

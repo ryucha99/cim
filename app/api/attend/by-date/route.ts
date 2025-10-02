@@ -48,7 +48,9 @@ export async function GET(req: NextRequest) {
     });
 
     return new Response(JSON.stringify({ ok: true, data }), { status: 200 });
-  } catch (e: any) {
-    return new Response(JSON.stringify({ ok: false, error: e?.message ?? 'server' }), { status: 500 });
-  }
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'server';
+      return new Response(JSON.stringify({ ok: false, error: message }), { status: 500 });
+    }
+
 }
